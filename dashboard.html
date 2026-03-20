@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* Keep all existing styles exactly as before */
         * {
             margin: 0;
             padding: 0;
@@ -233,6 +234,10 @@
             border-radius: 0.5rem;
             margin-top: 0.5rem;
         }
+        .ad-container {
+            margin-top: 1rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -351,6 +356,18 @@
                 </div>
             </div>
 
+            <!-- Ad Container -->
+            <div class="ad-container">
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9663432339191359" crossorigin="anonymous"></script>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-9663432339191359"
+                     data-ad-slot="9388774231"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+
             <!-- Debug Info (Hidden by default) -->
             <div id="debug-info" class="debug-info" style="display: none;"></div>
 
@@ -390,10 +407,7 @@
 
     <script>
         // ==================== CONFIG ====================
-        // ✅ FIXED API URL - Check karo yeh sahi hai
         const API_URL = 'https://bank-backend-two-dun.vercel.app/api';
-        
-        // Debug mode - true karne se console mein logs dikhenge
         const DEBUG = true;
 
         // ==================== CHECK LOGIN ====================
@@ -433,29 +447,22 @@
                         'Content-Type': 'application/json'
                     }
                 });
-                
                 logDebug('Profile response status:', response.status);
-                
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || `HTTP error ${response.status}`);
                 }
-                
                 const data = await response.json();
                 logDebug('Profile data:', data);
-                
                 userProfile = data;
-                
                 document.getElementById('user-name').textContent = `Hello, ${data.email.split('@')[0]} 👋`;
                 document.getElementById('user-email').innerHTML = `<i class="fa-regular fa-envelope"></i> ${data.email}`;
                 document.getElementById('balance-amount').textContent = `$${data.balance.toFixed(2)}`;
                 document.getElementById('card-number').innerHTML = `<i class="fa-regular fa-building"></i> •• ${data.cardNumber}`;
                 document.getElementById('card-expiry').innerHTML = `<i class="fa-regular fa-calendar"></i> ${data.expiryDate}`;
-                
             } catch (error) {
                 console.error('❌ Profile error:', error);
                 showError(`Profile load failed: ${error.message}`);
-                
                 if (error.message.includes('token') || error.message.includes('401')) {
                     localStorage.removeItem('token');
                     window.location.href = 'index.html';
@@ -473,23 +480,17 @@
                         'Content-Type': 'application/json'
                     }
                 });
-                
                 logDebug('Transactions response status:', response.status);
-                
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || `HTTP error ${response.status}`);
                 }
-                
                 transactions = await response.json();
                 logDebug('Transactions loaded:', transactions.length);
-                
                 renderTransactions();
-                
             } catch (error) {
                 console.error('❌ Transactions error:', error);
                 showError(`Transactions load failed: ${error.message}`);
-                
                 document.getElementById('transactions-list').innerHTML = `
                     <div style="text-align: center; padding: 2rem; color: #666;">
                         <i class="fa-solid fa-exclamation-circle fa-2x" style="color: #b91c1c;"></i>
@@ -505,7 +506,6 @@
 
         function renderTransactions() {
             let filtered = transactions;
-            
             if (currentFilter === 'income') {
                 filtered = transactions.filter(t => t.amount > 0);
             } else if (currentFilter === 'expense') {
@@ -544,7 +544,6 @@
                     </div>
                 </div>
             `).join('');
-
             document.getElementById('transactions-list').innerHTML = transactionsHTML;
         }
 
@@ -587,17 +586,13 @@
                         description: description || 'Transfer' 
                     })
                 });
-
                 const data = await response.json();
-                
                 if (response.ok) {
                     alert('Transfer successful!');
                     document.getElementById('transfer-modal').classList.remove('active');
-                    // Clear form
                     document.getElementById('to-account').value = '';
                     document.getElementById('amount').value = '';
                     document.getElementById('description').value = '';
-                    // Refresh data
                     loadProfile();
                     loadTransactions();
                 } else {
@@ -633,16 +628,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             logDebug('Dashboard initializing...');
             logDebug('API URL:', API_URL);
-            
-            // Load data
             loadProfile();
             loadTransactions();
 
-            // Event listeners
             document.getElementById('logout-btn').addEventListener('click', handleLogout);
             document.getElementById('hide-balance').addEventListener('click', toggleBalance);
             
-            // Transfer modal
             document.getElementById('send-btn').addEventListener('click', () => {
                 document.getElementById('transfer-modal').classList.add('active');
             });
@@ -651,7 +642,6 @@
             });
             document.getElementById('confirm-transfer-btn').addEventListener('click', handleTransfer);
 
-            // Filter chips
             document.querySelectorAll('.filter-chip').forEach(chip => {
                 chip.addEventListener('click', () => {
                     document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
@@ -661,24 +651,18 @@
                 });
             });
 
-            // Close modal when clicking outside
             window.addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal')) {
                     e.target.classList.remove('active');
                 }
             });
 
-            // Scan button
             document.getElementById('scan-btn').addEventListener('click', () => {
                 alert('Scan feature coming soon!');
             });
-
-            // Request button
             document.getElementById('request-btn').addEventListener('click', () => {
                 alert('Request money feature coming soon!');
             });
-
-            // Pay button
             document.getElementById('pay-btn').addEventListener('click', () => {
                 alert('Pay bills feature coming soon!');
             });

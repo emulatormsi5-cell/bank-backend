@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bank App · Real Email OTP</title>
+    <title>Bank App · Login & Register</title>
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* (CSS same rahega - upar se copy kar lena) */
+        /* Same as before – keep all existing styles */
         * {
             margin: 0;
             padding: 0;
@@ -36,6 +36,7 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             animation: float-in 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
         }
+        /* Keep all existing styles (interactive, forms, etc.) exactly as before */
         @keyframes float-in {
             0% { opacity: 0; transform: translateY(30px) scale(0.96); }
             100% { opacity: 1; transform: translateY(0) scale(1); }
@@ -168,78 +169,6 @@
             border-radius: 2rem;
             display: inline-block;
         }
-        .dashboard-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 1.4rem;
-        }
-        .balance-card {
-            background: linear-gradient(135deg, #0b2b44, #1b4d72);
-            color: white;
-            border-radius: 2rem;
-            padding: 1.5rem;
-            box-shadow: 0 15px 25px rgba(0,20,40,0.3);
-        }
-        .balance-card .label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        .balance-card .amount {
-            font-size: 2.8rem;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-        .action-row {
-            display: flex;
-            gap: 1rem;
-            justify-content: space-between;
-        }
-        .action-row button {
-            flex: 1;
-            padding: 0.9rem 0.5rem;
-            background: white;
-            color: #0b2b44;
-            border: 1px solid #bed6ea;
-        }
-        .transaction-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: #f4f9ff;
-            padding: 0.9rem 1.2rem;
-            border-radius: 1.8rem;
-            transition: 0.1s;
-            border: 1px solid transparent;
-        }
-        .transaction-item:hover {
-            border-color: #9ac0dd;
-            background: white;
-        }
-        .tx-icon {
-            width: 2.5rem;
-            height: 2.5rem;
-            background: #c1ddf5;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #0b2b44;
-        }
-        .tx-detail { flex:1; }
-        .tx-name { font-weight: 600; }
-        .tx-date { font-size: 0.75rem; color: #4f6f8a; }
-        .tx-amount { font-weight: 700; color: #1c6b3f; }
-        .logout-btn {
-            background: transparent;
-            border: 1.5px solid #b0c8dd;
-            color: #0b2b44;
-            box-shadow: none;
-            margin-top: 1rem;
-        }
-        .logout-btn:hover {
-            background: #c2d9ee;
-            border-color: #0b2b44;
-        }
         .error-message {
             background: #ffdede;
             color: #a12b2b;
@@ -257,6 +186,10 @@
         }
         .hidden { display: none !important; }
         i.fa-solid, i.fa-regular { pointer-events: none; }
+        .ad-container {
+            margin-top: 1rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -265,40 +198,24 @@
     <script>
         (function() {
             // ==================== CONFIG ====================
-            // ✅ FIXED URL - yeh sahi hai ab
+            // ✅ Vercel URL (aapka actual domain)
             const API_URL = 'https://bank-backend-two-dun.vercel.app/api/auth';
 
             // ==================== STATE ====================
             let state = {
-                screen: 'login',
+                screen: 'login',        // 'login', 'register', 'otp'
                 email: '',
                 password: '',
                 confirmPassword: '',
                 otpValue: '',
                 error: '',
-                loggedInUser: null
+                isLoading: false
             };
 
-            // Try to load session from token
-            async function checkSession() {
-                const token = localStorage.getItem('token');
-                if (!token) return false;
-                try {
-                    const response = await fetch(`${API_URL}/me`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        state.loggedInUser = data.user;
-                        state.screen = 'dashboard';
-                        return true;
-                    } else {
-                        localStorage.removeItem('token');
-                    }
-                } catch (e) {
-                    console.log('Session check failed', e);
-                }
-                return false;
+            // Check if already logged in (redirect to dashboard)
+            const token = localStorage.getItem('token');
+            if (token) {
+                window.location.href = 'dashboard.html';
             }
 
             // ==================== RENDER ====================
@@ -308,7 +225,16 @@
                 appDiv.style.opacity = '0.7';
                 appDiv.style.transform = 'scale(0.99)';
                 setTimeout(() => {
-                    appDiv.innerHTML = getScreenHTML(state.screen);
+                    appDiv.innerHTML = getScreenHTML(state.screen) + `<div class="ad-container">
+                        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9663432339191359" crossorigin="anonymous"><\/script>
+                        <ins class="adsbygoogle"
+                             style="display:block"
+                             data-ad-client="ca-pub-9663432339191359"
+                             data-ad-slot="9388774231"
+                             data-ad-format="auto"
+                             data-full-width-responsive="true"></ins>
+                        <script>(adsbygoogle = window.adsbygoogle || []).push({});<\/script>
+                    </div>`;
                     appDiv.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
                     appDiv.style.opacity = '1';
                     appDiv.style.transform = 'scale(1)';
@@ -321,7 +247,6 @@
                     case 'login': return renderLogin();
                     case 'register': return renderRegister();
                     case 'otp': return renderOtp();
-                    case 'dashboard': return renderDashboard();
                     default: return renderLogin();
                 }
             }
@@ -329,25 +254,27 @@
             function renderLogin() {
                 return `
                     <div class="screen">
-                        <h2><i class="fa-solid fa-building-columns"></i> welcome back</h2>
+                        <h2><i class="fa-solid fa-building-columns"></i> Welcome Back</h2>
                         ${state.error ? `<div class="error-message">${state.error}</div>` : ''}
                         <div class="input-group">
-                            <label>📧 email</label>
+                            <label>📧 Email Address</label>
                             <div class="input-wrapper">
                                 <i class="fa-solid fa-envelope"></i>
                                 <input type="email" id="login-email" placeholder="name@example.com" value="${state.email}">
                             </div>
                         </div>
                         <div class="input-group">
-                            <label>🔒 password</label>
+                            <label>🔒 Password</label>
                             <div class="input-wrapper">
                                 <i class="fa-solid fa-lock"></i>
                                 <input type="password" id="login-password" placeholder="••••••••" value="${state.password}">
                             </div>
                         </div>
-                        <button id="login-btn"><i class="fa-solid fa-arrow-right-to-bracket"></i> log in</button>
+                        <button id="login-btn" ${state.isLoading ? 'disabled' : ''}>
+                            ${state.isLoading ? '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...' : '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In'}
+                        </button>
                         <div class="link-toggle">
-                            <span id="goto-register">📝 new user? register</span>
+                            <span id="goto-register">📝 New user? Create account</span>
                         </div>
                     </div>
                 `;
@@ -356,32 +283,34 @@
             function renderRegister() {
                 return `
                     <div class="screen">
-                        <h2><i class="fa-regular fa-id-card"></i> open account</h2>
+                        <h2><i class="fa-regular fa-id-card"></i> Open Account</h2>
                         ${state.error ? `<div class="error-message">${state.error}</div>` : ''}
                         <div class="input-group">
-                            <label>📧 email</label>
+                            <label>📧 Email Address</label>
                             <div class="input-wrapper">
                                 <i class="fa-solid fa-envelope"></i>
                                 <input type="email" id="reg-email" placeholder="name@example.com" value="${state.email}">
                             </div>
                         </div>
                         <div class="input-group">
-                            <label>🔑 password (min 4 chars)</label>
+                            <label>🔑 Password (min 4 chars)</label>
                             <div class="input-wrapper">
                                 <i class="fa-solid fa-key"></i>
                                 <input type="password" id="reg-password" placeholder="••••••••" value="${state.password}">
                             </div>
                         </div>
                         <div class="input-group">
-                            <label>✓ confirm password</label>
+                            <label>✓ Confirm Password</label>
                             <div class="input-wrapper">
                                 <i class="fa-solid fa-circle-check"></i>
                                 <input type="password" id="reg-confirm" placeholder="re-enter" value="${state.confirmPassword}">
                             </div>
                         </div>
-                        <button id="send-otp-btn"><i class="fa-solid fa-paper-plane"></i> send OTP</button>
+                        <button id="send-otp-btn" ${state.isLoading ? 'disabled' : ''}>
+                            ${state.isLoading ? '<i class="fa-solid fa-spinner fa-spin"></i> Sending...' : '<i class="fa-solid fa-paper-plane"></i> Send OTP'}
+                        </button>
                         <div class="link-toggle">
-                            <span id="goto-login">↩️ already have account? login</span>
+                            <span id="goto-login">↩️ Already have account? Login</span>
                         </div>
                     </div>
                 `;
@@ -390,13 +319,14 @@
             function renderOtp() {
                 return `
                     <div class="screen">
-                        <h2><i class="fa-solid fa-shield-halved"></i> verify email</h2>
+                        <h2><i class="fa-solid fa-shield-halved"></i> Verify Email</h2>
                         <div class="otp-section">
                             <div style="display:flex; gap:0.8rem; align-items:center; margin-bottom:0.8rem;">
                                 <i class="fa-solid fa-envelope-open-text" style="font-size:1.8rem; color:#0b2b44;"></i>
                                 <div style="flex:1">
-                                    <div style="font-weight:500;">OTP sent to <span style="font-weight:700;">${state.email}</span></div>
-                                    <div class="small-hint">check your inbox (valid 10 min)</div>
+                                    <div style="font-weight:500;">OTP sent to</div>
+                                    <div style="font-weight:700; word-break: break-all;">${state.email}</div>
+                                    <div class="small-hint">Check your inbox (valid 10 min)</div>
                                 </div>
                             </div>
                             <div class="input-wrapper">
@@ -405,59 +335,15 @@
                             </div>
                         </div>
                         ${state.error ? `<div class="error-message">${state.error}</div>` : ''}
-                        <button id="verify-otp-btn"><i class="fa-solid fa-check-circle"></i> verify & register</button>
-                        <button class="secondary" id="resend-otp-btn"><i class="fa-solid fa-rotate-right"></i> resend OTP</button>
+                        <button id="verify-otp-btn" ${state.isLoading ? 'disabled' : ''}>
+                            ${state.isLoading ? '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...' : '<i class="fa-solid fa-check-circle"></i> Verify & Register'}
+                        </button>
+                        <button class="secondary" id="resend-otp-btn" ${state.isLoading ? 'disabled' : ''}>
+                            <i class="fa-solid fa-rotate-right"></i> Resend OTP
+                        </button>
                         <div class="link-toggle">
-                            <span id="back-to-register">← back</span>
+                            <span id="back-to-register">← Back to registration</span>
                         </div>
-                    </div>
-                `;
-            }
-
-            function renderDashboard() {
-                const userEmail = state.loggedInUser ? state.loggedInUser.email : 'User';
-                const localPart = userEmail.split('@')[0] || 'User';
-                return `
-                    <div class="screen">
-                        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.5rem;">
-                            <i class="fa-solid fa-circle-user" style="font-size:2.8rem; color:#0b2b44;"></i>
-                            <div>
-                                <div style="font-weight:600; font-size:1.2rem;">Hello, ${localPart}</div>
-                                <div style="color:#346a8a;">${userEmail}</div>
-                            </div>
-                        </div>
-                        <div class="dashboard-grid">
-                            <div class="balance-card">
-                                <div class="label">TOTAL BALANCE</div>
-                                <div class="amount">$ 12,480.00</div>
-                                <div style="display:flex; gap:1rem; margin-top:1rem;">
-                                    <span><i class="fa-regular fa-building"></i> •• 4580</span>
-                                    <span><i class="fa-regular fa-calendar"></i> 09/28</span>
-                                </div>
-                            </div>
-                            <div class="action-row">
-                                <button><i class="fa-solid fa-arrow-up"></i> send</button>
-                                <button><i class="fa-solid fa-arrow-down"></i> request</button>
-                                <button><i class="fa-regular fa-credit-card"></i> pay</button>
-                            </div>
-                            <div style="font-weight:600; margin-top:0.5rem;">recent activity</div>
-                            <div class="transaction-item">
-                                <div class="tx-icon"><i class="fa-solid fa-bag-shopping"></i></div>
-                                <div class="tx-detail"><span class="tx-name">Whole Foods</span><div class="tx-date">today, 10:23</div></div>
-                                <div class="tx-amount">-$82.40</div>
-                            </div>
-                            <div class="transaction-item">
-                                <div class="tx-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                                <div class="tx-detail"><span class="tx-name">Salary deposit</span><div class="tx-date">yesterday</div></div>
-                                <div class="tx-amount" style="color:#1c6b3f;">+$3,200.00</div>
-                            </div>
-                            <div class="transaction-item">
-                                <div class="tx-icon"><i class="fa-solid fa-mug-saucer"></i></div>
-                                <div class="tx-detail"><span class="tx-name">Starbucks</span><div class="tx-date">yesterday</div></div>
-                                <div class="tx-amount">-$5.75</div>
-                            </div>
-                        </div>
-                        <button class="logout-btn" id="logout-btn"><i class="fa-solid fa-sign-out"></i> log out</button>
                     </div>
                 `;
             }
@@ -469,17 +355,29 @@
                 const confirm = state.confirmPassword;
 
                 if (!email || !pwd || !confirm) {
-                    state.error = 'all fields required';
-                    renderScreen(); return;
+                    state.error = 'All fields are required';
+                    renderScreen(); 
+                    return;
                 }
                 if (pwd.length < 4) {
-                    state.error = 'password min 4 chars';
-                    renderScreen(); return;
+                    state.error = 'Password must be at least 4 characters';
+                    renderScreen(); 
+                    return;
                 }
                 if (pwd !== confirm) {
-                    state.error = 'passwords do not match';
-                    renderScreen(); return;
+                    state.error = 'Passwords do not match';
+                    renderScreen(); 
+                    return;
                 }
+                if (!email.includes('@') || !email.includes('.')) {
+                    state.error = 'Please enter a valid email address';
+                    renderScreen(); 
+                    return;
+                }
+
+                state.isLoading = true;
+                state.error = '';
+                renderScreen();
 
                 try {
                     const res = await fetch(`${API_URL}/send-otp`, {
@@ -489,14 +387,15 @@
                     });
                     const data = await res.json();
                     if (!res.ok) {
-                        state.error = data.error || 'Failed to send OTP';
-                        renderScreen(); return;
+                        throw new Error(data.error || 'Failed to send OTP');
                     }
                     state.screen = 'otp';
                     state.error = '';
+                    state.isLoading = false;
                     renderScreen();
                 } catch (err) {
-                    state.error = 'Network error, check backend';
+                    state.error = err.message || 'Network error. Please try again.';
+                    state.isLoading = false;
                     renderScreen();
                 }
             }
@@ -504,9 +403,14 @@
             async function handleVerifyOtp() {
                 const otp = state.otpValue;
                 if (!otp || otp.length !== 6) {
-                    state.error = 'enter 6-digit code';
-                    renderScreen(); return;
+                    state.error = 'Please enter 6-digit OTP code';
+                    renderScreen(); 
+                    return;
                 }
+
+                state.isLoading = true;
+                state.error = '';
+                renderScreen();
 
                 try {
                     const res = await fetch(`${API_URL}/verify-otp`, {
@@ -520,46 +424,59 @@
                     });
                     const data = await res.json();
                     if (!res.ok) {
-                        state.error = data.error || 'Verification failed';
-                        renderScreen(); return;
+                        throw new Error(data.error || 'Verification failed');
                     }
-                    state.loggedInUser = data.user;
                     localStorage.setItem('token', data.token);
-                    state.screen = 'dashboard';
-                    state.error = '';
-                    renderScreen();
+                    window.location.href = 'dashboard.html';
                 } catch (err) {
-                    state.error = 'Network error';
+                    state.error = err.message || 'Verification failed. Please try again.';
+                    state.isLoading = false;
                     renderScreen();
                 }
             }
 
             async function handleResendOtp() {
+                state.isLoading = true;
+                state.error = '';
+                renderScreen();
+
                 try {
                     const res = await fetch(`${API_URL}/send-otp`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: state.email, password: state.password })
+                        body: JSON.stringify({ 
+                            email: state.email, 
+                            password: state.password 
+                        })
                     });
                     const data = await res.json();
                     if (!res.ok) {
-                        state.error = data.error || 'Failed to resend OTP';
-                    } else {
-                        state.error = '';
+                        throw new Error(data.error || 'Failed to resend OTP');
                     }
+                    state.error = '';
+                    state.isLoading = false;
+                    renderScreen();
                 } catch (err) {
-                    state.error = 'Network error';
+                    state.error = err.message || 'Failed to resend OTP';
+                    state.isLoading = false;
+                    renderScreen();
                 }
-                renderScreen();
             }
 
             async function handleLogin() {
                 const email = state.email.trim().toLowerCase();
                 const pwd = state.password;
+
                 if (!email || !pwd) {
-                    state.error = 'enter email and password';
-                    renderScreen(); return;
+                    state.error = 'Please enter email and password';
+                    renderScreen(); 
+                    return;
                 }
+
+                state.isLoading = true;
+                state.error = '';
+                renderScreen();
+
                 try {
                     const res = await fetch(`${API_URL}/login`, {
                         method: 'POST',
@@ -568,26 +485,15 @@
                     });
                     const data = await res.json();
                     if (!res.ok) {
-                        state.error = data.error || 'Invalid credentials';
-                        renderScreen(); return;
+                        throw new Error(data.error || 'Invalid credentials');
                     }
-                    state.loggedInUser = data.user;
                     localStorage.setItem('token', data.token);
-                    state.screen = 'dashboard';
-                    state.error = '';
-                    renderScreen();
+                    window.location.href = 'dashboard.html';
                 } catch (err) {
-                    state.error = 'Network error';
+                    state.error = err.message || 'Login failed. Please try again.';
+                    state.isLoading = false;
                     renderScreen();
                 }
-            }
-
-            function handleLogout() {
-                localStorage.removeItem('token');
-                state.loggedInUser = null;
-                state.screen = 'login';
-                state.email = ''; state.password = ''; state.confirmPassword = ''; state.otpValue = '';
-                renderScreen();
             }
 
             // ==================== LISTENERS ====================
@@ -623,15 +529,10 @@
                         renderScreen();
                     });
                 }
-                else if (state.screen === 'dashboard') {
-                    document.getElementById('logout-btn')?.addEventListener('click', handleLogout);
-                }
             }
 
             // ==================== INIT ====================
-            checkSession().finally(() => {
-                renderScreen();
-            });
+            renderScreen();
         })();
     </script>
 </body>
