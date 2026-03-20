@@ -24,8 +24,7 @@ app.use((req, res, next) => {
 });
 
 // ==================== MongoDB Connection ====================
-// Standard connection string (without SRV)
-const MONGODB_URI = 'mongodb://emulatormsi5_db_user:nIrEpJeQAMtvzbpM@ac-s9gsioo-shard-00-00.8553qvs.mongodb.net:27017,ac-s9gsioo-shard-00-01.8553qvs.mongodb.net:27017,ac-s9gsioo-shard-00-02.8553qvs.mongodb.net:27017/bankapp?ssl=true&replicaSet=atlas-x8h16l-shard-0&authSource=admin&retryWrites=true&w=majority';
+const MONGODB_URI = process.env.MONGO_URI || 'mongodb+srv://emulatormsi5_db_user:nIrEpJeQAMtvzbpM@cluster0.8553qvs.mongodb.net/bankapp?retryWrites=true&w=majority';
 
 console.log('🔄 Connecting to MongoDB...');
 
@@ -37,11 +36,6 @@ mongoose.connect(MONGODB_URI, {
 .catch(err => {
   console.error('❌ MongoDB connection error:');
   console.error('Message:', err.message);
-  if (err.message.includes('bad auth')) {
-    console.error('👉 Username ya password galat hai');
-  } else if (err.message.includes('ECONNREFUSED')) {
-    console.error('👉 Network issue - internet check karo');
-  }
 });
 
 // ==================== MongoDB Models ====================
@@ -233,3 +227,6 @@ app.listen(PORT, () => {
   console.log(`📝 Test: http://localhost:${PORT}/`);
   console.log(`🔌 API Base: http://localhost:${PORT}/api/auth`);
 });
+
+// ==================== Export for Vercel ====================
+module.exports = app;
