@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* (Same styling as before – for brevity I'm keeping it minimal, but you can copy your full CSS from previous response) */
+        /* (CSS same rahega - upar se copy kar lena) */
         * {
             margin: 0;
             padding: 0;
@@ -264,12 +264,13 @@
 
     <script>
         (function() {
-            // -------------------- CONFIG --------------------
-            const API_URL = 'http://localhost:5000/api/auth'; // change this when deployed
+            // ==================== CONFIG ====================
+            // ✅ FIXED URL - yeh sahi hai ab
+            const API_URL = 'https://bank-backend-two-dun.vercel.app/api/auth';
 
-            // -------------------- STATE --------------------
+            // ==================== STATE ====================
             let state = {
-                screen: 'login',        // 'login', 'register', 'otp', 'dashboard'
+                screen: 'login',
                 email: '',
                 password: '',
                 confirmPassword: '',
@@ -300,11 +301,10 @@
                 return false;
             }
 
-            // -------------------- RENDER --------------------
+            // ==================== RENDER ====================
             const appDiv = document.getElementById('app');
 
             function renderScreen() {
-                // Smooth fade effect
                 appDiv.style.opacity = '0.7';
                 appDiv.style.transform = 'scale(0.99)';
                 setTimeout(() => {
@@ -462,7 +462,7 @@
                 `;
             }
 
-            // -------------------- API CALLS --------------------
+            // ==================== API CALLS ====================
             async function handleSendOtp() {
                 const email = state.email.trim().toLowerCase();
                 const pwd = state.password;
@@ -492,7 +492,6 @@
                         state.error = data.error || 'Failed to send OTP';
                         renderScreen(); return;
                     }
-                    // move to OTP screen
                     state.screen = 'otp';
                     state.error = '';
                     renderScreen();
@@ -524,7 +523,6 @@
                         state.error = data.error || 'Verification failed';
                         renderScreen(); return;
                     }
-                    // success
                     state.loggedInUser = data.user;
                     localStorage.setItem('token', data.token);
                     state.screen = 'dashboard';
@@ -547,7 +545,7 @@
                     if (!res.ok) {
                         state.error = data.error || 'Failed to resend OTP';
                     } else {
-                        state.error = ''; // clear error
+                        state.error = '';
                     }
                 } catch (err) {
                     state.error = 'Network error';
@@ -592,7 +590,7 @@
                 renderScreen();
             }
 
-            // -------------------- LISTENERS --------------------
+            // ==================== LISTENERS ====================
             function attachListeners() {
                 if (state.screen === 'login') {
                     document.getElementById('login-email')?.addEventListener('input', e => state.email = e.target.value);
@@ -630,7 +628,7 @@
                 }
             }
 
-            // -------------------- INIT --------------------
+            // ==================== INIT ====================
             checkSession().finally(() => {
                 renderScreen();
             });
