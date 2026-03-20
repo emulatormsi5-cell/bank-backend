@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Dashboard</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0b2b44 0%, #123b56 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .bank-card {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(12px);
+            border-radius: 2.5rem;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.3) inset;
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem 1.5rem;
+            transition: transform 0.3s ease;
+            animation: float-in 0.6s forwards;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        @keyframes float-in {
+            0% { opacity: 0; transform: translateY(30px) scale(0.96); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .screen { display: flex; flex-direction: column; gap: 1.5rem; }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .balance-card {
+            background: linear-gradient(135deg, #0b2b44, #1b4d72);
+            color: white;
+            border-radius: 2rem;
+            padding: 1.5rem;
+            box-shadow: 0 15px 25px rgba(0,20,40,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: -30px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+        .balance-amount {
+            font-size: 2.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+            position: relative;
+            z-index: 2;
+        }
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .action-btn {
+            background: #eef3f8;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 1.2rem;
+            color: #0b2b44;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .action-btn:hover {
+            background: #d1e0ef;
+            transform: translateY(-2px);
+        }
+        .action-btn i { font-size: 1.3rem; }
+        .action-btn span { font-size: 0.7rem; }
+        
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: #f4f9ff;
+            padding: 0.9rem 1rem;
+            border-radius: 1.2rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+        .transaction-item:hover {
+            background: #e8f0fe;
+            transform: translateX(5px);
+        }
+        .tx-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: #c1ddf5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0b2b44;
+        }
+        .tx-detail { flex: 1; }
+        .tx-name { font-weight: 600; }
+        .tx-category { font-size: 0.65rem; color: #4f6f8a; }
+        .tx-amount { font-weight: 700; }
+        .tx-status {
+            font-size: 0.6rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 1rem;
+            background: #eef3f8;
+        }
+        .status-completed { color: #1c6b3f; background: #dff0d8; }
+        .status-pending { color: #b45b0b; background: #fff3cd; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 2rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .logout-btn {
+            background: transparent;
+            border: 1.5px solid #b0c8dd;
+            color: #0b2b44;
+            padding: 0.8rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+        .logout-btn:hover { background: #c2d9ee; }
+        .filter-bar {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        .filter-chip {
+            background: #eef3f8;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .filter-chip.active {
+            background: #0b2b44;
+            color: white;
+        }
+        .loading-spinner {
+            text-align: center;
+            padding: 2rem;
+        }
+        .error-message {
+            background: #ffdede;
+            color: #a12b2b;
+            padding: 1rem;
+            border-radius: 1rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .debug-info {
+            font-size: 0.7rem;
+            color: #666;
+            background: #f0f0f0;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="bank-card" id="dashboard-container">
+        <div class="screen">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div style="position: relative;">
+                    <i class="fa-solid fa-circle-user" style="font-size: 3.5rem; color: #0b2b44;"></i>
+                    <span style="position: absolute; bottom: 5px; right: 0; background: #22c55e; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></span>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; font-size: 1.3rem;" id="user-name">Loading...</div>
+                    <div style="color: #346a8a; display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem;" id="user-email">
+                        <i class="fa-regular fa-envelope"></i> loading...
+                    </div>
+                </div>
+                <i class="fa-regular fa-bell" style="font-size: 1.5rem; color: #0b2b44; cursor: pointer;" id="notifications-btn"></i>
+            </div>
+
+            <!-- Balance Card -->
+            <div class="balance-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;">
+                    <div>
+                        <span style="color: #9fc5e3; font-size: 0.9rem;">TOTAL BALANCE</span>
+                        <div class="balance-amount" id="balance-amount">$0.00</div>
+                        <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem;">
+                            <span style="color: #9fc5e3; font-size: 0.8rem;" id="card-number">
+                                <i class="fa-regular fa-building"></i> •• 4580
+                            </span>
+                            <span style="color: #9fc5e3; font-size: 0.8rem;" id="card-expiry">
+                                <i class="fa-regular fa-calendar"></i> 09/28
+                            </span>
+                        </div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.1); padding: 0.8rem; border-radius: 50%; cursor: pointer;" id="hide-balance">
+                        <i class="fa-solid fa-eye" style="color: white; font-size: 1.2rem;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Grid -->
+            <div class="action-grid">
+                <button class="action-btn" id="send-btn">
+                    <i class="fa-solid fa-arrow-up"></i>
+                    <span>Send</span>
+                </button>
+                <button class="action-btn" id="request-btn">
+                    <i class="fa-solid fa-arrow-down"></i>
+                    <span>Request</span>
+                </button>
+                <button class="action-btn" id="pay-btn">
+                    <i class="fa-regular fa-credit-card"></i>
+                    <span>Pay</span>
+                </button>
+                <button class="action-btn" id="scan-btn">
+                    <i class="fa-solid fa-qrcode"></i>
+                    <span>Scan</span>
+                </button>
+            </div>
+
+            <!-- Services Section -->
+            <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
+                    <span style="font-weight: 600;">Services</span>
+                    <span style="color: #346a8a; font-size: 0.8rem; cursor: pointer;">View All</span>
+                </div>
+                <div style="display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 0.5rem;">
+                    <div style="min-width: 60px; text-align: center;">
+                        <div style="background: #eef3f8; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <i class="fa-solid fa-mobile-screen" style="color: #0b2b44;"></i>
+                        </div>
+                        <span style="font-size: 0.65rem;">Mobile</span>
+                    </div>
+                    <div style="min-width: 60px; text-align: center;">
+                        <div style="background: #eef3f8; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <i class="fa-solid fa-wifi" style="color: #0b2b44;"></i>
+                        </div>
+                        <span style="font-size: 0.65rem;">Internet</span>
+                    </div>
+                    <div style="min-width: 60px; text-align: center;">
+                        <div style="background: #eef3f8; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <i class="fa-solid fa-bolt" style="color: #0b2b44;"></i>
+                        </div>
+                        <span style="font-size: 0.65rem;">Electricity</span>
+                    </div>
+                    <div style="min-width: 60px; text-align: center;">
+                        <div style="background: #eef3f8; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <i class="fa-solid fa-film" style="color: #0b2b44;"></i>
+                        </div>
+                        <span style="font-size: 0.65rem;">OTT</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Header with Filters -->
+            <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
+                    <span style="font-weight: 600;">Recent Activity</span>
+                    <span style="color: #346a8a; font-size: 0.8rem; cursor: pointer;" id="view-all-transactions">View All</span>
+                </div>
+                <div class="filter-bar" id="filter-bar">
+                    <span class="filter-chip active" data-filter="all">All</span>
+                    <span class="filter-chip" data-filter="income">Income</span>
+                    <span class="filter-chip" data-filter="expense">Expense</span>
+                    <span class="filter-chip" data-filter="pending">Pending</span>
+                    <span class="filter-chip" data-filter="today">Today</span>
+                </div>
+            </div>
+
+            <!-- Transactions List -->
+            <div id="transactions-list" style="max-height: 300px; overflow-y: auto;">
+                <div class="loading-spinner">
+                    <i class="fa-solid fa-spinner fa-spin fa-2x" style="color: #0b2b44;"></i>
+                    <p>Loading transactions...</p>
+                </div>
+            </div>
+
+            <!-- Debug Info (Hidden by default) -->
+            <div id="debug-info" class="debug-info" style="display: none;"></div>
+
+            <!-- Logout Button -->
+            <button class="logout-btn" id="logout-btn">
+                <i class="fa-solid fa-sign-out"></i> Log Out
+            </button>
+        </div>
+    </div>
+
+    <!-- Transfer Modal -->
+    <div class="modal" id="transfer-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Send Money</h3>
+                <button class="close-btn" id="close-transfer-modal">&times;</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="input-wrapper" style="border: 1px solid #cbdbe9; border-radius: 2rem; padding: 0.5rem 1rem;">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="to-account" placeholder="Account number or email" style="border: none; outline: none; width: 100%; padding: 0.5rem;">
+                </div>
+                <div class="input-wrapper" style="border: 1px solid #cbdbe9; border-radius: 2rem; padding: 0.5rem 1rem;">
+                    <i class="fa-solid fa-dollar-sign"></i>
+                    <input type="number" id="amount" placeholder="Amount" style="border: none; outline: none; width: 100%; padding: 0.5rem;">
+                </div>
+                <div class="input-wrapper" style="border: 1px solid #cbdbe9; border-radius: 2rem; padding: 0.5rem 1rem;">
+                    <i class="fa-solid fa-pen"></i>
+                    <input type="text" id="description" placeholder="Description (optional)" style="border: none; outline: none; width: 100%; padding: 0.5rem;">
+                </div>
+                <button id="confirm-transfer-btn" style="background: #0b2b44; color: white; border: none; padding: 1rem; border-radius: 2rem; font-weight: 600;">
+                    Send Money
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIG ====================
+        // ✅ FIXED API URL - Check karo yeh sahi hai
+        const API_URL = 'https://bank-backend-two-dun.vercel.app/api';
+        
+        // Debug mode - true karne se console mein logs dikhenge
+        const DEBUG = true;
+
+        // ==================== CHECK LOGIN ====================
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'index.html';
+        }
+
+        // ==================== STATE ====================
+        let currentFilter = 'all';
+        let balanceVisible = true;
+        let transactions = [];
+        let userProfile = null;
+
+        // ==================== HELPER FUNCTIONS ====================
+        function logDebug(message, data = null) {
+            if (DEBUG) {
+                console.log(`🔍 ${message}`, data || '');
+            }
+        }
+
+        function showError(message) {
+            const debugDiv = document.getElementById('debug-info');
+            debugDiv.style.display = 'block';
+            debugDiv.innerHTML = `❌ Error: ${message}`;
+            console.error('❌', message);
+        }
+
+        // ==================== API CALLS ====================
+        async function loadProfile() {
+            try {
+                logDebug('Loading profile...');
+                const response = await fetch(`${API_URL}/user/profile`, {
+                    method: 'GET',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                logDebug('Profile response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error ${response.status}`);
+                }
+                
+                const data = await response.json();
+                logDebug('Profile data:', data);
+                
+                userProfile = data;
+                
+                document.getElementById('user-name').textContent = `Hello, ${data.email.split('@')[0]} 👋`;
+                document.getElementById('user-email').innerHTML = `<i class="fa-regular fa-envelope"></i> ${data.email}`;
+                document.getElementById('balance-amount').textContent = `$${data.balance.toFixed(2)}`;
+                document.getElementById('card-number').innerHTML = `<i class="fa-regular fa-building"></i> •• ${data.cardNumber}`;
+                document.getElementById('card-expiry').innerHTML = `<i class="fa-regular fa-calendar"></i> ${data.expiryDate}`;
+                
+            } catch (error) {
+                console.error('❌ Profile error:', error);
+                showError(`Profile load failed: ${error.message}`);
+                
+                if (error.message.includes('token') || error.message.includes('401')) {
+                    localStorage.removeItem('token');
+                    window.location.href = 'index.html';
+                }
+            }
+        }
+
+        async function loadTransactions() {
+            try {
+                logDebug('Loading transactions...');
+                const response = await fetch(`${API_URL}/user/transactions`, {
+                    method: 'GET',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                logDebug('Transactions response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error ${response.status}`);
+                }
+                
+                transactions = await response.json();
+                logDebug('Transactions loaded:', transactions.length);
+                
+                renderTransactions();
+                
+            } catch (error) {
+                console.error('❌ Transactions error:', error);
+                showError(`Transactions load failed: ${error.message}`);
+                
+                document.getElementById('transactions-list').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        <i class="fa-solid fa-exclamation-circle fa-2x" style="color: #b91c1c;"></i>
+                        <p>Failed to load transactions</p>
+                        <p style="font-size: 0.8rem;">${error.message}</p>
+                        <button onclick="loadTransactions()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #0b2b44; color: white; border: none; border-radius: 2rem; cursor: pointer;">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderTransactions() {
+            let filtered = transactions;
+            
+            if (currentFilter === 'income') {
+                filtered = transactions.filter(t => t.amount > 0);
+            } else if (currentFilter === 'expense') {
+                filtered = transactions.filter(t => t.amount < 0);
+            } else if (currentFilter === 'pending') {
+                filtered = transactions.filter(t => t.status === 'pending');
+            } else if (currentFilter === 'today') {
+                const today = new Date().toISOString().split('T')[0];
+                filtered = transactions.filter(t => t.date === today);
+            }
+
+            if (filtered.length === 0) {
+                document.getElementById('transactions-list').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        <i class="fa-regular fa-folder-open fa-2x"></i>
+                        <p>No transactions found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const transactionsHTML = filtered.map(tx => `
+                <div class="transaction-item">
+                    <div class="tx-icon">
+                        <i class="fa-solid fa-${getIconForCategory(tx.category)}"></i>
+                    </div>
+                    <div class="tx-detail">
+                        <div class="tx-name">${tx.name}</div>
+                        <div class="tx-category">${tx.category || 'General'}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="tx-amount" style="color: ${tx.amount > 0 ? '#1c6b3f' : '#b91c1c'};">
+                            ${tx.amount > 0 ? '+' : ''}$${Math.abs(tx.amount).toFixed(2)}
+                        </div>
+                        <span class="tx-status status-${tx.status}">${tx.status}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('transactions-list').innerHTML = transactionsHTML;
+        }
+
+        function getIconForCategory(category) {
+            const icons = {
+                'Groceries': 'bag-shopping',
+                'Income': 'arrow-trend-up',
+                'Food': 'mug-saucer',
+                'Shopping': 'cart-shopping',
+                'Entertainment': 'film',
+                'Travel': 'car',
+                'Transfer': 'arrow-right-arrow-left',
+                'Deposit': 'circle-dollar-to-slot',
+                'default': 'credit-card'
+            };
+            return icons[category] || icons.default;
+        }
+
+        // ==================== ACTION HANDLERS ====================
+        async function handleTransfer() {
+            const toAccount = document.getElementById('to-account').value;
+            const amount = document.getElementById('amount').value;
+            const description = document.getElementById('description').value;
+
+            if (!toAccount || !amount) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/user/transfer`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ 
+                        toAccount, 
+                        amount: parseFloat(amount), 
+                        description: description || 'Transfer' 
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Transfer successful!');
+                    document.getElementById('transfer-modal').classList.remove('active');
+                    // Clear form
+                    document.getElementById('to-account').value = '';
+                    document.getElementById('amount').value = '';
+                    document.getElementById('description').value = '';
+                    // Refresh data
+                    loadProfile();
+                    loadTransactions();
+                } else {
+                    alert(data.error || 'Transfer failed');
+                }
+            } catch (error) {
+                console.error('Transfer error:', error);
+                alert('Transfer failed. Please try again.');
+            }
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('token');
+                window.location.href = 'index.html';
+            }
+        }
+
+        function toggleBalance() {
+            const balanceEl = document.getElementById('balance-amount');
+            if (balanceVisible) {
+                balanceEl.textContent = '••••••';
+                balanceVisible = false;
+            } else {
+                if (userProfile) {
+                    balanceEl.textContent = `$${userProfile.balance.toFixed(2)}`;
+                }
+                balanceVisible = true;
+            }
+        }
+
+        // ==================== INITIALIZE ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            logDebug('Dashboard initializing...');
+            logDebug('API URL:', API_URL);
+            
+            // Load data
+            loadProfile();
+            loadTransactions();
+
+            // Event listeners
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+            document.getElementById('hide-balance').addEventListener('click', toggleBalance);
+            
+            // Transfer modal
+            document.getElementById('send-btn').addEventListener('click', () => {
+                document.getElementById('transfer-modal').classList.add('active');
+            });
+            document.getElementById('close-transfer-modal').addEventListener('click', () => {
+                document.getElementById('transfer-modal').classList.remove('active');
+            });
+            document.getElementById('confirm-transfer-btn').addEventListener('click', handleTransfer);
+
+            // Filter chips
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    currentFilter = chip.dataset.filter;
+                    renderTransactions();
+                });
+            });
+
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    e.target.classList.remove('active');
+                }
+            });
+
+            // Scan button
+            document.getElementById('scan-btn').addEventListener('click', () => {
+                alert('Scan feature coming soon!');
+            });
+
+            // Request button
+            document.getElementById('request-btn').addEventListener('click', () => {
+                alert('Request money feature coming soon!');
+            });
+
+            // Pay button
+            document.getElementById('pay-btn').addEventListener('click', () => {
+                alert('Pay bills feature coming soon!');
+            });
+        });
+    </script>
+</body>
+</html>
