@@ -4,13 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bank Dashboard</title>
+    <!-- Google Auto Ads -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9663432339191359"
+         crossorigin="anonymous"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Keep all existing styles exactly as before */
         * {
             margin: 0;
             padding: 0;
@@ -234,10 +239,6 @@
             border-radius: 0.5rem;
             margin-top: 0.5rem;
         }
-        .ad-container {
-            margin-top: 1rem;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
@@ -356,21 +357,6 @@
                 </div>
             </div>
 
-            <!-- Ad Container -->
-            <div class="ad-container">
-                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9663432339191359" crossorigin="anonymous"></script>
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-9663432339191359"
-                     data-ad-slot="9388774231"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-            </div>
-
-            <!-- Debug Info (Hidden by default) -->
-            <div id="debug-info" class="debug-info" style="display: none;"></div>
-
             <!-- Logout Button -->
             <button class="logout-btn" id="logout-btn">
                 <i class="fa-solid fa-sign-out"></i> Log Out
@@ -431,8 +417,10 @@
 
         function showError(message) {
             const debugDiv = document.getElementById('debug-info');
-            debugDiv.style.display = 'block';
-            debugDiv.innerHTML = `❌ Error: ${message}`;
+            if (debugDiv) {
+                debugDiv.style.display = 'block';
+                debugDiv.innerHTML = `❌ Error: ${message}`;
+            }
             console.error('❌', message);
         }
 
@@ -496,7 +484,7 @@
                         <i class="fa-solid fa-exclamation-circle fa-2x" style="color: #b91c1c;"></i>
                         <p>Failed to load transactions</p>
                         <p style="font-size: 0.8rem;">${error.message}</p>
-                        <button onclick="loadTransactions()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #0b2b44; color: white; border: none; border-radius: 2rem; cursor: pointer;">
+                        <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #0b2b44; color: white; border: none; border-radius: 2rem; cursor: pointer;">
                             Retry
                         </button>
                     </div>

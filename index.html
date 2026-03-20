@@ -4,13 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bank App · Login & Register</title>
+    <!-- Google Auto Ads -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9663432339191359"
+         crossorigin="anonymous"></script>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Same as before – keep all existing styles */
         * {
             margin: 0;
             padding: 0;
@@ -36,7 +41,6 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             animation: float-in 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
         }
-        /* Keep all existing styles (interactive, forms, etc.) exactly as before */
         @keyframes float-in {
             0% { opacity: 0; transform: translateY(30px) scale(0.96); }
             100% { opacity: 1; transform: translateY(0) scale(1); }
@@ -186,10 +190,6 @@
         }
         .hidden { display: none !important; }
         i.fa-solid, i.fa-regular { pointer-events: none; }
-        .ad-container {
-            margin-top: 1rem;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
@@ -198,12 +198,11 @@
     <script>
         (function() {
             // ==================== CONFIG ====================
-            // ✅ Vercel URL (aapka actual domain)
             const API_URL = 'https://bank-backend-two-dun.vercel.app/api/auth';
 
             // ==================== STATE ====================
             let state = {
-                screen: 'login',        // 'login', 'register', 'otp'
+                screen: 'login',
                 email: '',
                 password: '',
                 confirmPassword: '',
@@ -212,7 +211,7 @@
                 isLoading: false
             };
 
-            // Check if already logged in (redirect to dashboard)
+            // Redirect if already logged in
             const token = localStorage.getItem('token');
             if (token) {
                 window.location.href = 'dashboard.html';
@@ -225,16 +224,7 @@
                 appDiv.style.opacity = '0.7';
                 appDiv.style.transform = 'scale(0.99)';
                 setTimeout(() => {
-                    appDiv.innerHTML = getScreenHTML(state.screen) + `<div class="ad-container">
-                        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9663432339191359" crossorigin="anonymous"><\/script>
-                        <ins class="adsbygoogle"
-                             style="display:block"
-                             data-ad-client="ca-pub-9663432339191359"
-                             data-ad-slot="9388774231"
-                             data-ad-format="auto"
-                             data-full-width-responsive="true"></ins>
-                        <script>(adsbygoogle = window.adsbygoogle || []).push({});<\/script>
-                    </div>`;
+                    appDiv.innerHTML = getScreenHTML(state.screen);
                     appDiv.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
                     appDiv.style.opacity = '1';
                     appDiv.style.transform = 'scale(1)';
