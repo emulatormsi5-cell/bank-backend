@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank App · Real Email OTP</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* (Same styling as before – for brevity I'm keeping it minimal, but you can copy your full CSS from previous response) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0b2b44 0%, #123b56 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .bank-card {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(12px);
+            border-radius: 2.5rem;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.3) inset;
+            width: 100%;
+            max-width: 480px;
+            padding: 2rem 1.8rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: float-in 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+        @keyframes float-in {
+            0% { opacity: 0; transform: translateY(30px) scale(0.96); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .screen {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        h2 {
+            font-weight: 600;
+            font-size: 1.9rem;
+            color: #0b2b44;
+            margin-bottom: 0.25rem;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .input-group label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #1e4c6f;
+            margin-left: 0.5rem;
+        }
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 2rem;
+            padding: 0.2rem 1.2rem;
+            border: 1.5px solid #cbdbe9;
+            transition: all 0.2s;
+            box-shadow: 0 4px 8px rgba(0,20,40,0.03);
+        }
+        .input-wrapper:focus-within {
+            border-color: #0077be;
+            box-shadow: 0 8px 18px rgba(0,119,190,0.12);
+            transform: scale(1.01);
+        }
+        .input-wrapper i {
+            color: #2a6d9c;
+            font-size: 1.1rem;
+            margin-right: 0.6rem;
+            width: 1.2rem;
+        }
+        .input-wrapper input {
+            width: 100%;
+            border: none;
+            padding: 0.9rem 0;
+            font-size: 1rem;
+            background: transparent;
+            outline: none;
+            font-weight: 500;
+        }
+        .input-wrapper input::placeholder {
+            color: #9fb3cc;
+            font-weight: 400;
+        }
+        button {
+            background: #0b2b44;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 1rem 1.8rem;
+            border-radius: 3rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 16px rgba(0,35,70,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        button:hover {
+            background: #124b70;
+            transform: scale(1.02) translateY(-2px);
+            box-shadow: 0 16px 24px rgba(0,55,100,0.25);
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        button.secondary {
+            background: white;
+            color: #0b2b44;
+            border: 1.5px solid #cbdbe9;
+            box-shadow: none;
+        }
+        button.secondary:hover {
+            background: #e6f0f9;
+            border-color: #7fa9c7;
+        }
+        .link-toggle {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+        .link-toggle span {
+            color: #0d3757;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.4rem 0.8rem;
+            border-radius: 2rem;
+            transition: background 0.2s;
+        }
+        .link-toggle span:hover {
+            background: rgba(0,70,120,0.08);
+            text-decoration: underline;
+        }
+        .otp-section {
+            background: #e9f2fa;
+            padding: 1.2rem 1rem;
+            border-radius: 2rem;
+            margin: 0.5rem 0;
+            animation: slide-down 0.3s ease;
+        }
+        @keyframes slide-down {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .small-hint {
+            color: #1f5a83;
+            font-size: 0.8rem;
+            margin-top: 0.2rem;
+            background: #d4e6f5;
+            padding: 0.3rem 1rem;
+            border-radius: 2rem;
+            display: inline-block;
+        }
+        .dashboard-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+        }
+        .balance-card {
+            background: linear-gradient(135deg, #0b2b44, #1b4d72);
+            color: white;
+            border-radius: 2rem;
+            padding: 1.5rem;
+            box-shadow: 0 15px 25px rgba(0,20,40,0.3);
+        }
+        .balance-card .label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .balance-card .amount {
+            font-size: 2.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .action-row {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+        }
+        .action-row button {
+            flex: 1;
+            padding: 0.9rem 0.5rem;
+            background: white;
+            color: #0b2b44;
+            border: 1px solid #bed6ea;
+        }
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: #f4f9ff;
+            padding: 0.9rem 1.2rem;
+            border-radius: 1.8rem;
+            transition: 0.1s;
+            border: 1px solid transparent;
+        }
+        .transaction-item:hover {
+            border-color: #9ac0dd;
+            background: white;
+        }
+        .tx-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: #c1ddf5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0b2b44;
+        }
+        .tx-detail { flex:1; }
+        .tx-name { font-weight: 600; }
+        .tx-date { font-size: 0.75rem; color: #4f6f8a; }
+        .tx-amount { font-weight: 700; color: #1c6b3f; }
+        .logout-btn {
+            background: transparent;
+            border: 1.5px solid #b0c8dd;
+            color: #0b2b44;
+            box-shadow: none;
+            margin-top: 1rem;
+        }
+        .logout-btn:hover {
+            background: #c2d9ee;
+            border-color: #0b2b44;
+        }
+        .error-message {
+            background: #ffdede;
+            color: #a12b2b;
+            padding: 0.7rem 1.2rem;
+            border-radius: 3rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-left: 5px solid #c73c3c;
+            animation: shake 0.2s ease;
+        }
+        @keyframes shake {
+            0%,100%{ transform: translateX(0); }
+            25%{ transform: translateX(-6px); }
+            75%{ transform: translateX(6px); }
+        }
+        .hidden { display: none !important; }
+        i.fa-solid, i.fa-regular { pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div class="bank-card" id="app"></div>
+
+    <script>
+        (function() {
+            // -------------------- CONFIG --------------------
+            const API_URL = 'http://localhost:5000/api/auth'; // change this when deployed
+
+            // -------------------- STATE --------------------
+            let state = {
+                screen: 'login',        // 'login', 'register', 'otp', 'dashboard'
+                email: '',
+                password: '',
+                confirmPassword: '',
+                otpValue: '',
+                error: '',
+                loggedInUser: null
+            };
+
+            // Try to load session from token
+            async function checkSession() {
+                const token = localStorage.getItem('token');
+                if (!token) return false;
+                try {
+                    const response = await fetch(`${API_URL}/me`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        state.loggedInUser = data.user;
+                        state.screen = 'dashboard';
+                        return true;
+                    } else {
+                        localStorage.removeItem('token');
+                    }
+                } catch (e) {
+                    console.log('Session check failed', e);
+                }
+                return false;
+            }
+
+            // -------------------- RENDER --------------------
+            const appDiv = document.getElementById('app');
+
+            function renderScreen() {
+                // Smooth fade effect
+                appDiv.style.opacity = '0.7';
+                appDiv.style.transform = 'scale(0.99)';
+                setTimeout(() => {
+                    appDiv.innerHTML = getScreenHTML(state.screen);
+                    appDiv.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+                    appDiv.style.opacity = '1';
+                    appDiv.style.transform = 'scale(1)';
+                    attachListeners();
+                }, 70);
+            }
+
+            function getScreenHTML(screen) {
+                switch(screen) {
+                    case 'login': return renderLogin();
+                    case 'register': return renderRegister();
+                    case 'otp': return renderOtp();
+                    case 'dashboard': return renderDashboard();
+                    default: return renderLogin();
+                }
+            }
+
+            function renderLogin() {
+                return `
+                    <div class="screen">
+                        <h2><i class="fa-solid fa-building-columns"></i> welcome back</h2>
+                        ${state.error ? `<div class="error-message">${state.error}</div>` : ''}
+                        <div class="input-group">
+                            <label>📧 email</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-envelope"></i>
+                                <input type="email" id="login-email" placeholder="name@example.com" value="${state.email}">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>🔒 password</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock"></i>
+                                <input type="password" id="login-password" placeholder="••••••••" value="${state.password}">
+                            </div>
+                        </div>
+                        <button id="login-btn"><i class="fa-solid fa-arrow-right-to-bracket"></i> log in</button>
+                        <div class="link-toggle">
+                            <span id="goto-register">📝 new user? register</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function renderRegister() {
+                return `
+                    <div class="screen">
+                        <h2><i class="fa-regular fa-id-card"></i> open account</h2>
+                        ${state.error ? `<div class="error-message">${state.error}</div>` : ''}
+                        <div class="input-group">
+                            <label>📧 email</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-envelope"></i>
+                                <input type="email" id="reg-email" placeholder="name@example.com" value="${state.email}">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>🔑 password (min 4 chars)</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-key"></i>
+                                <input type="password" id="reg-password" placeholder="••••••••" value="${state.password}">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>✓ confirm password</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <input type="password" id="reg-confirm" placeholder="re-enter" value="${state.confirmPassword}">
+                            </div>
+                        </div>
+                        <button id="send-otp-btn"><i class="fa-solid fa-paper-plane"></i> send OTP</button>
+                        <div class="link-toggle">
+                            <span id="goto-login">↩️ already have account? login</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function renderOtp() {
+                return `
+                    <div class="screen">
+                        <h2><i class="fa-solid fa-shield-halved"></i> verify email</h2>
+                        <div class="otp-section">
+                            <div style="display:flex; gap:0.8rem; align-items:center; margin-bottom:0.8rem;">
+                                <i class="fa-solid fa-envelope-open-text" style="font-size:1.8rem; color:#0b2b44;"></i>
+                                <div style="flex:1">
+                                    <div style="font-weight:500;">OTP sent to <span style="font-weight:700;">${state.email}</span></div>
+                                    <div class="small-hint">check your inbox (valid 10 min)</div>
+                                </div>
+                            </div>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock-open"></i>
+                                <input type="text" id="otp-input" placeholder="6-digit code" maxlength="6" value="${state.otpValue}">
+                            </div>
+                        </div>
+                        ${state.error ? `<div class="error-message">${state.error}</div>` : ''}
+                        <button id="verify-otp-btn"><i class="fa-solid fa-check-circle"></i> verify & register</button>
+                        <button class="secondary" id="resend-otp-btn"><i class="fa-solid fa-rotate-right"></i> resend OTP</button>
+                        <div class="link-toggle">
+                            <span id="back-to-register">← back</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function renderDashboard() {
+                const userEmail = state.loggedInUser ? state.loggedInUser.email : 'User';
+                const localPart = userEmail.split('@')[0] || 'User';
+                return `
+                    <div class="screen">
+                        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.5rem;">
+                            <i class="fa-solid fa-circle-user" style="font-size:2.8rem; color:#0b2b44;"></i>
+                            <div>
+                                <div style="font-weight:600; font-size:1.2rem;">Hello, ${localPart}</div>
+                                <div style="color:#346a8a;">${userEmail}</div>
+                            </div>
+                        </div>
+                        <div class="dashboard-grid">
+                            <div class="balance-card">
+                                <div class="label">TOTAL BALANCE</div>
+                                <div class="amount">$ 12,480.00</div>
+                                <div style="display:flex; gap:1rem; margin-top:1rem;">
+                                    <span><i class="fa-regular fa-building"></i> •• 4580</span>
+                                    <span><i class="fa-regular fa-calendar"></i> 09/28</span>
+                                </div>
+                            </div>
+                            <div class="action-row">
+                                <button><i class="fa-solid fa-arrow-up"></i> send</button>
+                                <button><i class="fa-solid fa-arrow-down"></i> request</button>
+                                <button><i class="fa-regular fa-credit-card"></i> pay</button>
+                            </div>
+                            <div style="font-weight:600; margin-top:0.5rem;">recent activity</div>
+                            <div class="transaction-item">
+                                <div class="tx-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+                                <div class="tx-detail"><span class="tx-name">Whole Foods</span><div class="tx-date">today, 10:23</div></div>
+                                <div class="tx-amount">-$82.40</div>
+                            </div>
+                            <div class="transaction-item">
+                                <div class="tx-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                                <div class="tx-detail"><span class="tx-name">Salary deposit</span><div class="tx-date">yesterday</div></div>
+                                <div class="tx-amount" style="color:#1c6b3f;">+$3,200.00</div>
+                            </div>
+                            <div class="transaction-item">
+                                <div class="tx-icon"><i class="fa-solid fa-mug-saucer"></i></div>
+                                <div class="tx-detail"><span class="tx-name">Starbucks</span><div class="tx-date">yesterday</div></div>
+                                <div class="tx-amount">-$5.75</div>
+                            </div>
+                        </div>
+                        <button class="logout-btn" id="logout-btn"><i class="fa-solid fa-sign-out"></i> log out</button>
+                    </div>
+                `;
+            }
+
+            // -------------------- API CALLS --------------------
+            async function handleSendOtp() {
+                const email = state.email.trim().toLowerCase();
+                const pwd = state.password;
+                const confirm = state.confirmPassword;
+
+                if (!email || !pwd || !confirm) {
+                    state.error = 'all fields required';
+                    renderScreen(); return;
+                }
+                if (pwd.length < 4) {
+                    state.error = 'password min 4 chars';
+                    renderScreen(); return;
+                }
+                if (pwd !== confirm) {
+                    state.error = 'passwords do not match';
+                    renderScreen(); return;
+                }
+
+                try {
+                    const res = await fetch(`${API_URL}/send-otp`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password: pwd })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        state.error = data.error || 'Failed to send OTP';
+                        renderScreen(); return;
+                    }
+                    // move to OTP screen
+                    state.screen = 'otp';
+                    state.error = '';
+                    renderScreen();
+                } catch (err) {
+                    state.error = 'Network error, check backend';
+                    renderScreen();
+                }
+            }
+
+            async function handleVerifyOtp() {
+                const otp = state.otpValue;
+                if (!otp || otp.length !== 6) {
+                    state.error = 'enter 6-digit code';
+                    renderScreen(); return;
+                }
+
+                try {
+                    const res = await fetch(`${API_URL}/verify-otp`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: state.email,
+                            otp: otp,
+                            password: state.password
+                        })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        state.error = data.error || 'Verification failed';
+                        renderScreen(); return;
+                    }
+                    // success
+                    state.loggedInUser = data.user;
+                    localStorage.setItem('token', data.token);
+                    state.screen = 'dashboard';
+                    state.error = '';
+                    renderScreen();
+                } catch (err) {
+                    state.error = 'Network error';
+                    renderScreen();
+                }
+            }
+
+            async function handleResendOtp() {
+                try {
+                    const res = await fetch(`${API_URL}/send-otp`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: state.email, password: state.password })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        state.error = data.error || 'Failed to resend OTP';
+                    } else {
+                        state.error = ''; // clear error
+                    }
+                } catch (err) {
+                    state.error = 'Network error';
+                }
+                renderScreen();
+            }
+
+            async function handleLogin() {
+                const email = state.email.trim().toLowerCase();
+                const pwd = state.password;
+                if (!email || !pwd) {
+                    state.error = 'enter email and password';
+                    renderScreen(); return;
+                }
+                try {
+                    const res = await fetch(`${API_URL}/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password: pwd })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        state.error = data.error || 'Invalid credentials';
+                        renderScreen(); return;
+                    }
+                    state.loggedInUser = data.user;
+                    localStorage.setItem('token', data.token);
+                    state.screen = 'dashboard';
+                    state.error = '';
+                    renderScreen();
+                } catch (err) {
+                    state.error = 'Network error';
+                    renderScreen();
+                }
+            }
+
+            function handleLogout() {
+                localStorage.removeItem('token');
+                state.loggedInUser = null;
+                state.screen = 'login';
+                state.email = ''; state.password = ''; state.confirmPassword = ''; state.otpValue = '';
+                renderScreen();
+            }
+
+            // -------------------- LISTENERS --------------------
+            function attachListeners() {
+                if (state.screen === 'login') {
+                    document.getElementById('login-email')?.addEventListener('input', e => state.email = e.target.value);
+                    document.getElementById('login-password')?.addEventListener('input', e => state.password = e.target.value);
+                    document.getElementById('login-btn')?.addEventListener('click', handleLogin);
+                    document.getElementById('goto-register')?.addEventListener('click', () => {
+                        state.error = '';
+                        state.screen = 'register';
+                        renderScreen();
+                    });
+                }
+                else if (state.screen === 'register') {
+                    document.getElementById('reg-email')?.addEventListener('input', e => state.email = e.target.value);
+                    document.getElementById('reg-password')?.addEventListener('input', e => state.password = e.target.value);
+                    document.getElementById('reg-confirm')?.addEventListener('input', e => state.confirmPassword = e.target.value);
+                    document.getElementById('send-otp-btn')?.addEventListener('click', handleSendOtp);
+                    document.getElementById('goto-login')?.addEventListener('click', () => {
+                        state.error = '';
+                        state.screen = 'login';
+                        renderScreen();
+                    });
+                }
+                else if (state.screen === 'otp') {
+                    document.getElementById('otp-input')?.addEventListener('input', e => state.otpValue = e.target.value);
+                    document.getElementById('verify-otp-btn')?.addEventListener('click', handleVerifyOtp);
+                    document.getElementById('resend-otp-btn')?.addEventListener('click', handleResendOtp);
+                    document.getElementById('back-to-register')?.addEventListener('click', () => {
+                        state.error = '';
+                        state.screen = 'register';
+                        renderScreen();
+                    });
+                }
+                else if (state.screen === 'dashboard') {
+                    document.getElementById('logout-btn')?.addEventListener('click', handleLogout);
+                }
+            }
+
+            // -------------------- INIT --------------------
+            checkSession().finally(() => {
+                renderScreen();
+            });
+        })();
+    </script>
+</body>
+</html>
